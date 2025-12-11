@@ -17,13 +17,6 @@ class PathPoint:
     endpoint: bool = attrs.field(default=False, kw_only=True)
 
 
-@attrs.define
-class TrajPoint:
-    pos: p3d.LPoint3
-    vel: p3d.LVector3
-    endpoint: bool = attrs.field(default=False, kw_only=True)
-
-
 class ArcTravler(Protocol):
     def __call__(self, t: float, /) -> ArcPoint: ...
 
