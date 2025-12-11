@@ -1,0 +1,49 @@
+[project]
+name = "panda3d-flail"
+version = "0.0.0"
+description = "A ragdoll character control library for Panda3D"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    # Must match .pre-commit-config.yaml:
+    "attrs>=21.3.0",
+    "numpy",
+    "Panda3D>=1.10",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit",
+    # Must match .pre-commit-config.yaml:
+    "mypy==1.19.0",
+    "ruff==1.14.7",
+    "types-panda3d==0.4.1",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/CircuitBird/panda3d-flail"
+"Bug Tracker" = "https://github.com/CircuitBird/panda3d-flail/issues"
+
+[build-system]
+requires = ["flit_core>=3.4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.module]
+name = "flail"
+
+[tool.ruff]
+fix = true
+
+[tool.ruff.lint]
+select = ["E", "F", "N", "B", "I"]
+ignore = ["B008"]
+fixable = ["E", "F", "I"]
+
+[tool.ruff.format]
+quote-style = "preserve"
