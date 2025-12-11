@@ -170,11 +170,14 @@ class Arm:
 @attrs.define
 class PointArmController:
     arm: Arm
-    ctrl_func: ctrlfuncs.ControlFunction = ctrlfuncs.SimplePD()
+    ctrl_func: ctrlfuncs.ControlFunction = ctrlfuncs.SimplePD(kp=1.5, kd=0.75)
     ik_algorithm: ik.IKAlgorithm = ik.j_pinv
 
     async def update(self, target: p3d.LPoint3) -> None:
         clock = p3d.ClockObject.get_global_clock()
+        marker = p3d.Loader.get_global_ptr().load_sync("jack.egg")
+        marker_path = self.arm.base.attach_new_node(marker)
+        marker_path.set_scale(0.2)
         t0 = clock.frame_time
         distance = (target - self.arm.current_position).length()
         path = traj.LinearPath(self.arm.current_position, target)
@@ -183,14 +186,16 @@ class PointArmController:
         while True:
             t = clock.frame_time - t0
             des = trajectory(t)
+            marker_path.set_pos(des.pos)
             xd_cmd = self.ctrl_func(
                 des.pos,
                 des.vel,
                 self.arm.current_position,
                 self.arm.current_velocity,
             )
-            if des.endpoint and xd_cmd.length_squared() < 0.01:
+            if des.endpoint:
                 self.arm.drive(np.zeros(len(self.arm.joints)))
+                marker_path.remove_node()
                 return
             qd = self.ik_algorithm(self.arm, xd_cmd)
             self.arm.drive(qd)
