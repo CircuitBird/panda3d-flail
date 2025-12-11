@@ -13,8 +13,8 @@ class ArcPoint:
 @attrs.define
 class PathPoint:
     pos: p3d.LPoint3
-    tangent: p3d.LVector3
-    normal: p3d.LVector3
+    vel: p3d.LVector3
+    endpoint: bool = attrs.field(default=False, kw_only=True)
 
 
 @attrs.define
@@ -29,7 +29,7 @@ class ArcTravler(Protocol):
 
 
 class Path(Protocol):
-    def __call__(self, s: float, /) -> PathPoint: ...
+    def __call__(self, arc_point: ArcPoint, /) -> PathPoint: ...
 
 
 @attrs.define
@@ -51,11 +51,10 @@ class LinearPath(Path):
     p0: p3d.LPoint3
     p1: p3d.LPoint3
 
-    def __call__(self, s: float) -> PathPoint:
-        pos = self.p0 + (self.p1 - self.p0) * s
-        tangent = p3d.LVector3()
-        normal = p3d.LVector3()
-        return PathPoint(pos, tangent, normal)
+    def __call__(self, arc_point: ArcPoint) -> PathPoint:
+        tangent = self.p1 - self.p0
+        pos = self.p0 + tangent * arc_point.s
+        return PathPoint(pos, tangent * arc_point.v, endpoint=arc_point.s >= 1)
 
 
 @attrs.define
@@ -64,11 +63,5 @@ class Trajectory:
     traveler: ArcTravler
     time_scale: float = attrs.field(default=1, kw_only=True)
 
-    def __call__(self, t: float) -> TrajPoint:
-        arc_point = self.traveler(t * self.time_scale)
-        path_point = self.path(arc_point.s)
-        return TrajPoint(
-            path_point.pos,
-            path_point.tangent * arc_point.v,
-            endpoint=arc_point.s >= 1,
-        )
+    def __call__(self, t: float) -> PathPoint:
+        return self.path(self.traveler(t * self.time_scale))

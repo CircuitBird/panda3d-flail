@@ -20,7 +20,7 @@ class ControlFunction(Protocol):
 class SimplePD(ControlFunction):
     kp: float = 1.0
     kd: float = 0.0
-    feedforward: bool = attrs.field(default=True, kw_only=True)
+    feedforward: bool = attrs.field(default=False, kw_only=True)
 
     def __call__(
         self,
