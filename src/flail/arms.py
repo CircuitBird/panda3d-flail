@@ -1,4 +1,5 @@
 from collections.abc import Iterable, Sequence
+from itertools import pairwise
 from typing import Protocol, Self
 
 import attrs
@@ -147,20 +148,18 @@ class Arm:
 
     @classmethod
     def from_xforms(cls, base: BodyPath, xforms: Iterable[p3d.LMatrix4]) -> Self:
-        first = base.attach_new_node(bt.BulletRigidBodyNode('joint-link-0'))
-        paths = [base, first]
+        paths = [base]
         for i, xform in enumerate(xforms, start=1):
-            node = bt.BulletRigidBodyNode(f'joint-link-{i}')
+            node = bt.BulletRigidBodyNode(f'link-{i}')
             path = paths[-1].attach_new_node(node)
             path.set_mat(xform)
             paths.append(path)
         return cls.from_node_paths(paths)
 
     @classmethod
-    def from_node_paths(cls, paths: Sequence[BodyPath]) -> Self:
+    def from_node_paths(cls, paths: Iterable[BodyPath]) -> Self:
         joints: list[Joint] = []
-        for i in range(2, len(paths)):
-            base, tip = paths[i - 1 : i + 1]
+        for base, tip in pairwise(paths):
             attach_member(base, tip, mass=1.0)
             joint = HingeJoint.make(base, tip)
             joints.append(joint)
