@@ -22,7 +22,7 @@ dev = [
     "pre-commit",
     # Must match .pre-commit-config.yaml:
     "mypy==1.19.0",
-    "ruff==1.14.7",
+    "ruff==0.14.7",
     "types-panda3d==0.4.1",
 ]
 
