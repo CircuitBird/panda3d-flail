@@ -74,7 +74,8 @@ async def click() -> int:
     endpoint = ground_path.get_relative_point(base.cam, far_point)
     result = world.ray_test_closest(origin, endpoint)
     if result.node == ground_node:
-        await controller.update(result.hit_pos)
+        target = arm.base.get_relative_point(ground_path, result.hit_pos)
+        await controller.update(target)
     return p3d.PythonTask.DS_cont
 
 
