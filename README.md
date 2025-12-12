@@ -46,22 +46,26 @@ between 0 and 1, representing a portion of time elapsed, and returns an
 this time representing a portion of an arc length, and a velocity describing
 the derivative of that number.
 
-The first number in an `ArcPoint` object, which describes arc length, is then
-passed to an implementation of `flail.traj.Path`. This protocol describes
+Next in the algorithm is the `flail.traj.Path` protocol, which describes
 anything that can be called with an `ArcPoint` object and returns information
-about a path at a particular position using the `PathPoint` class.
+about a path at a particular position using an instance of the `PathPoint`
+class. This `PathPoint` contains a position, which is the point in space along
+the path corresponding to the arc length in the input. It also contains a
+velocity, which is the rate of change of this position with respect to the time
+input originally passed to the `ArcTraveler`.
 
 The `flail.traj.Trajectory` class bridges implementations of the `ArcTraveler`
-and `Path` protocols. It can be called with a time value (no longer bounded by
-0 and 1), which it scales and passes to an `ArcTraveler`. It passes the result
-of this call to a `Path` and returns the result of that call.
+and `Path` protocols and allows setting a time scale. It can be called with a
+time value (no longer bounded by 0 and 1), which it scales and passes to an
+`ArcTraveler`. It passes the result of this call directly to a `Path` to create
+a `PathPoint`. It then scales the velocity of the `PathPoint` (in accordance
+with the time scale) and returns the object.
 
 `PointArmController` calls a `Trajectory` with an appropriate time value, then
 passes the output information to an instance of the
 `flail.ctrlfuncs.ControlFunction` protocol. This protocol describes an object
 that can be called with desired and current end-effector position and velocity
-and returns a velocity to command. By default, this is a simple proportional
-controller.
+and returns a velocity to command. By default, this is a simple PD controller.
 
 `PointArmController` then passes this commanded end-effector velocity to an
 instance of the `flail.ik.IKAlgorithm` protocol, which handles inverse
@@ -75,13 +79,13 @@ mechanisms to apply motor torques to reach these velocities.
 
 # How?
 If you want to experiment with the library for yourself, you can run
-`python -m pip install -U https://github.com/CircuitBird/panda3d-flail.git`
+`python -m pip install https://github.com/CircuitBird/panda3d-flail.git`
 in whatever environment you wish.
 
 If you want to run the demos, you should first clone the repository and create
 a virtual environment. Within the repository directory and with the environment
-active, use `python -m pip install -e .` to install the package. Once it is
-installed, you can run, for instance, `python demos/point_and_click.py`.
+active, use `python -m pip install --editable .` to install the package. Once
+it is installed, you can run, for instance, `python demos/point_and_click.py`.
 
 If you want to contribute, you should first make a fork of the project on
 GitHub. Then follow the instructions in the paragraph above, but append
