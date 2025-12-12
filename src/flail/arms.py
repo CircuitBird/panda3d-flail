@@ -170,7 +170,7 @@ class Arm:
 @attrs.define
 class PointArmController:
     arm: Arm
-    ctrl_func: ctrlfuncs.ControlFunction = ctrlfuncs.SimplePD(kp=1.5, kd=0.75)
+    ctrl_func: ctrlfuncs.ControlFunction = ctrlfuncs.SimplePD(kp=3.0, kd=2.0)
     ik_algorithm: ik.IKAlgorithm = ik.j_pinv
 
     async def update(self, target: p3d.LPoint3) -> None:

@@ -47,7 +47,9 @@ class LinearPath(Path):
     def __call__(self, arc_point: ArcPoint) -> PathPoint:
         tangent = self.p1 - self.p0
         pos = self.p0 + tangent * arc_point.s
-        return PathPoint(pos, tangent * arc_point.v, endpoint=arc_point.s >= 1)
+        # Note that `vel` is the derivative of `pos` with respect to *normalized* time.
+        vel = tangent * arc_point.v
+        return PathPoint(pos, vel, endpoint=arc_point.s >= 1)
 
 
 @attrs.define
@@ -57,4 +59,6 @@ class Trajectory:
     time_scale: float = attrs.field(default=1, kw_only=True)
 
     def __call__(self, t: float) -> PathPoint:
-        return self.path(self.traveler(t * self.time_scale))
+        path_point = self.path(self.traveler(t * self.time_scale))
+        path_point.vel *= self.time_scale
+        return path_point
